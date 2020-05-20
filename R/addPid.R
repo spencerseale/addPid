@@ -7,11 +7,15 @@ find_pkg_fxn <- function(r_script, packages) {
   rs <- readLines(r_script)
   for (p in packages) {
     fxns <- ls(paste0("package:", p))
-    
-    # blanket removal of n() fxn in case dplyr package being used
-    fxns <- fxns[!"n" == fxns]
+  
     for (f in fxns) {
-      rs <- gsub(pattern = paste0("[^functio]", f, "("), replacement = paste0(p, "::", f, "("), x = rs, fixed = T)
+      print(f)
+      pat <- paste0("(?<!functio)(?<!fu)", f)
+      print(pat)
+      rep <- paste0(p, "::", f)
+      print(rep)
+      rs <- gsub(pat, rep, rs, ignore.case = F, perl = T)
+      #print(paste0("[^::]", f, "("))
     }
   }
   writeLines(rs, paste0(dirname(r_script), "/fixed_", basename(r_script)))
@@ -28,4 +32,15 @@ a
 # p <- c("data.table","tidyverse","reshape2","MASS","viridis","polynom","scales", "dplyr")
 # find_pkg_fxn("/Users/sseale/bb_repos/immunoSeqR/dev_R/getDiffAb.R", p)
 
+test <- "::select  select"
+
+gsub(paste0("[^::]", "select"), "dplyr::select", test)
+
+test1 <- "function()   n()  ::n" 
+var <- "n"
+gsub(paste0("(?<!function)", var,), paste0("dplyr::", var), test1)
+
+gsub("(?<!functio)(?<!fu)n", "::n", test1, perl = T, ignore.case = F)
+gsub("(?>!::)n", "dpl::n", test1, perl = T, ignore.case = F)
+#(?>!\\Q::\\E)
 
