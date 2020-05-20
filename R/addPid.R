@@ -1,4 +1,31 @@
 
+
+
+#' @title Add :: (i.e. \code{<package>::<function>}) notation to package functions
+#' 
+#' @description Scan a file of R code for the presence of functions from of a list of input packages.
+#' 
+#' @param \code{r_script} A connection to a file (.R or .Rmd) containing package functions.
+#' 
+#' @param \code{packages} A character vector of packages having functions that should be searched for in r_script.
+#' 
+#' @details Add :: notation to functions so that packages are directly referenced in their calls. 
+#' R package development requires not attaching packages and instead loading them directly by \code{package::function}.
+#' This function and package exists to negate manually appending package identifyers to corresponding functions in R code.
+#' 
+#' @return An edited .R or .Rmd file written to the same directory as input file. 
+#' 
+#' @author Spencer Seale
+#' 
+#' @examples 
+#' \dontrun{
+#' pkgs <- c("dplyr", "stringr")
+#' 
+#' addPid("/path/to/r/script", pkgs)
+#' }
+#' 
+#' @export addPid
+
 addPid <- function(r_script, packages) {
   # initializing vector
   p_name <- c()
@@ -27,21 +54,3 @@ addPid <- function(r_script, packages) {
   suppressWarnings(invisible(lapply(p_name, function(i) {detach(i, character.only = T, unload = T)})))
   message("Scanning complete.")
 }
-
-
-### testing --------------------------------------------------------------
-# readLines(testr)
-# testr <- "/Users/sseale/addPid/test.R"
-# pkgs <- c("dplyr", "stringr")
-# a <- addPid(testr, pkgs)
-# a
-
-# test string 
-# test1 <- "function()   n() asd$nasd ::n() ghdn() %>%  \nn()  hey.n() :n() _n() -n() ->n()" 
-# test1
-
-# state what must be in lookbehind
-# gsub("(?<=[=,\\s\\(\\)\\[\\]\\{\\}\\*\\!])(?<!::)n\\(", "dplyr::n\\(", test1, perl = T, ignore.case = F)
-
-# state what cannot be in lookbehind 
-# gsub("(?<=[\\W])(?<![:.])n\\(", "dplyr::n\\(", test1, perl = T, ignore.case = F)
