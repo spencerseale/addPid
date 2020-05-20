@@ -8,7 +8,9 @@ addPid <- function(r_script, packages) {
   
   # read in script 
   rs <- readLines(r_script)
+  
   message("Scanning .R script for functions from packages...")
+  
   for (p in packages) {
     message(paste("*", p))
     fxns <- ls(paste0("package:", p))
