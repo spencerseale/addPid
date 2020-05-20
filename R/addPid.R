@@ -1,46 +1,45 @@
 
-find_pkg_fxn <- function(r_script, packages) {
+addPid <- function(r_script, packages) {
+  # initializing vector
+  p_name <- c()
+  
   # pkg must be in the search path
-  lapply(packages, require, character.only = TRUE)
+  suppressMessages(lapply(packages, require, character.only = TRUE))
   
   # read in script 
   rs <- readLines(r_script)
+  message("Scanning .R script for functions from packages...")
   for (p in packages) {
+    message(paste("*", p))
     fxns <- ls(paste0("package:", p))
-  
+    p_name <- append(p_name, paste0("package:", p))
+    # scanning script for all instances of functions from each package
     for (f in fxns) {
-      print(f)
-      pat <- paste0("(?<!functio)(?<!fu)", f)
-      print(pat)
-      rep <- paste0(p, "::", f)
-      print(rep)
+      look_behind <- "(?<=[\\W])(?<![:.])"
+      pat <- paste0(look_behind, f, "\\(")
+      rep <- paste0(p, "::", f, "\\(")
       rs <- gsub(pat, rep, rs, ignore.case = F, perl = T)
-      #print(paste0("[^::]", f, "("))
     }
   }
   writeLines(rs, paste0(dirname(r_script), "/fixed_", basename(r_script)))
-  return(rs)
+  suppressWarnings(invisible(lapply(p_name, function(i) {detach(i, character.only = T, unload = T)})))
+  message("Scanning complete.")
 }
 
 
-### testing 
-testr <- "/Users/sseale/test.R"
-pkgs <- c("dplyr", "stringr")
-a <- find_pkg_fxn(testr, pkgs)
-a
+### testing --------------------------------------------------------------
+# readLines(testr)
+# testr <- "/Users/sseale/addPid/test.R"
+# pkgs <- c("dplyr", "stringr")
+# a <- addPid(testr, pkgs)
+# a
 
-# p <- c("data.table","tidyverse","reshape2","MASS","viridis","polynom","scales", "dplyr")
-# find_pkg_fxn("/Users/sseale/bb_repos/immunoSeqR/dev_R/getDiffAb.R", p)
+# test string 
+# test1 <- "function()   n() asd$nasd ::n() ghdn() %>%  \nn()  hey.n() :n() _n() -n() ->n()" 
+# test1
 
-test <- "::select  select"
+# state what must be in lookbehind
+# gsub("(?<=[=,\\s\\(\\)\\[\\]\\{\\}\\*\\!])(?<!::)n\\(", "dplyr::n\\(", test1, perl = T, ignore.case = F)
 
-gsub(paste0("[^::]", "select"), "dplyr::select", test)
-
-test1 <- "function()   n()  ::n" 
-var <- "n"
-gsub(paste0("(?<!function)", var,), paste0("dplyr::", var), test1)
-
-gsub("(?<!functio)(?<!fu)n", "::n", test1, perl = T, ignore.case = F)
-gsub("(?>!::)n", "dpl::n", test1, perl = T, ignore.case = F)
-#(?>!\\Q::\\E)
-
+# state what cannot be in lookbehind 
+# gsub("(?<=[\\W])(?<![:.])n\\(", "dplyr::n\\(", test1, perl = T, ignore.case = F)
