@@ -2,17 +2,19 @@
 % Please edit documentation in R/addPid.R
 \name{addPid}
 \alias{addPid}
-\title{Add :: (i.e. \code{<package>::<function>}) notation to package functions}
+\title{Add :: (\code{<package>::<function>}) notation to package functions}
 \usage{
-addPid(r_script, packages)
+addPid(r_script, ignore = NULL, detach = TRUE)
 }
 \arguments{
 \item{\code{r_script}}{A connection to a file (.R or .Rmd) containing package functions.}
 
-\item{\code{packages}}{A character vector of packages having functions that should be searched for in r_script.}
+\item{\code{ignore}}{Optional character vector of package names to ignore.}
+
+\item{\code{detach}}{Logical stating whether packages should be detached after input. Default is TRUE.}
 }
 \value{
-An edited .R or .Rmd file written to the same directory as input file.
+An edited .R file written to the same directory as input file.
 }
 \description{
 Scan a file of R code for the presence of functions from of a list of input packages.
@@ -24,9 +26,7 @@ This function and package exists to negate manually appending package identifyer
 }
 \examples{
 \dontrun{
-pkgs <- c("dplyr", "stringr")
-
-addPid("/path/to/r/script", pkgs)
+addPid("/path/to/r/script")
 }
 
 }
