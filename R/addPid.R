@@ -1,9 +1,11 @@
 
 #' @title Add :: (\code{<package>::<function>}) notation to package functions
 #' 
-#' @description Scan a file of R code for the presence of functions from of a list of input packages.
+#' @description Scan a file of R code for the presence of functions from packages installed on machine or a custom list of packages.
 #' 
 #' @param \code{r_script} A connection to a file (.R or .Rmd) containing package functions.
+#' 
+#' @param \code{packages} Optionally specify a character vector of packages to be searched for.
 #' 
 #' @param \code{ignore} Optional character vector of package names to ignore.
 #' 
@@ -24,18 +26,23 @@
 #' 
 #' @export addPid
 
-addPid <- function(r_script, ignore=NULL, detach=TRUE) {
+addPid <- function(r_script, packages=NULL, ignore=NULL, detach=TRUE) {
   # initializing vector for package unloading and counter for substitutions
   p_name <- c()
   rep_counter <- 0
   
   # list to hold packages that have functions that made replacements
-  # f_rep <- c()
-  # p_rep <- c()
+  f_rep <- c()
+  p_rep <- c()
   
-  # pkg must be in the search path
-  message("Loading packages installed on machine into search path...")
-  suppressMessages(lapply(row.names(installed.packages()), require, character.only = TRUE))
+  if (is.null(packages)) {
+    # pkg must be in the search path
+    message("Loading packages installed on machine into search path...")
+    suppressMessages(lapply(row.names(installed.packages()), require, character.only = TRUE))
+  } else {
+    message("Loading specified packages installed on machine into search path...")
+    suppressMessages(lapply(packages, require, character.only = TRUE))
+  }
   
   pkgs <- c()
   for (s in search()) {
@@ -64,7 +71,7 @@ addPid <- function(r_script, ignore=NULL, detach=TRUE) {
     
     # scanning script for all instances of functions from each package
     for (f in fxns) {
-      # f_name <- f
+      f_name <- f
       # need to add escape characters to special characters exisiting in package functions for final gsub to work with regex
       for (e in esc) {
         f <- gsub(paste0("[\\", e, "]"), paste0("\\\\", e), f, perl=T)
@@ -81,8 +88,8 @@ addPid <- function(r_script, ignore=NULL, detach=TRUE) {
       # if not identical, then at least one match made
       if (!identical(rs, temp)) {
         rep_counter = rep_counter + 1
-        # f_rep <- append(f_rep, f_name)
-        # p_rep <- unique(append(p_rep, p))
+        f_rep <- append(f_rep, f_name)
+        p_rep <- unique(append(p_rep, p))
       }
       
       # after compared, set temp to rs to integrate changes
@@ -99,17 +106,23 @@ addPid <- function(r_script, ignore=NULL, detach=TRUE) {
   # write out edited file if at least one edit was made
   if (rep_counter > 0) {
     writeLines(rs, paste0(dirname(r_script), "/fixed_", basename(r_script)))
-    message("RESULTS:")
-    message(paste0(rep_counter, " unique functions annotated with package name"))
-    # message(paste0("Packages with non-annotated functions edite: ", p_rep))
-    # message(paste0("Functions from packages editd:", f_rep))
-    message("...The edited .R file has been saved in same dir as input script.")
+    message("****      *******   *******   *  *   **     *******   *******")
+    message("**  *     **        **        *  *   **        *      **")
+    message("*****     *******   *******   *  *   **        *      *******")
+    message("**  **    **             **   *  *   **        *           **")
+    message("**   **   *******   *******   ****   *******   *      *******")
+    message(paste0("*", rep_counter, " unique functions annotated with package name."))
+    message("*Packages with functions edited:")
+    message(paste(p_rep, collapse = "\n"))
+    message("*Functions from packages edited:")
+    message(paste(f_rep, collapse = "\n"))
+    message("*The edited .R file has been saved in same dir as input script.")
   } else {
-    message("No edits made, an edited file is not necessary and will not be written out.")
+    message("*No edits made, an edited file is not necessary and will not be written out.")
   }
 }
 
-# x <- addPid("/Users/sseale/addPid/tests/test.R")
+# x <- addPid("/Users/sseale/addPid/tests/test.R", packages = c("dplyr", "stringr"))
 # x
 
 

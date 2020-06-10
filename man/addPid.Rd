@@ -4,10 +4,12 @@
 \alias{addPid}
 \title{Add :: (\code{<package>::<function>}) notation to package functions}
 \usage{
-addPid(r_script, ignore = NULL, detach = TRUE)
+addPid(r_script, packages = NULL, ignore = NULL, detach = TRUE)
 }
 \arguments{
 \item{\code{r_script}}{A connection to a file (.R or .Rmd) containing package functions.}
+
+\item{\code{packages}}{Optionally specify a character vector of packages to be searched for.}
 
 \item{\code{ignore}}{Optional character vector of package names to ignore.}
 
@@ -17,7 +19,7 @@ addPid(r_script, ignore = NULL, detach = TRUE)
 An edited .R file written to the same directory as input file.
 }
 \description{
-Scan a file of R code for the presence of functions from of a list of input packages.
+Scan a file of R code for the presence of functions from packages installed on machine or a custom list of packages.
 }
 \details{
 Add :: notation to functions so that packages are directly referenced in their calls.

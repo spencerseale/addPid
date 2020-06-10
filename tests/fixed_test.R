@@ -1,7 +1,7 @@
 sum(x,1)
 
 function() {
-	MASS::select()
+	dplyr::select()
 }
 
 test(stringr::str_extract()
