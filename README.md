@@ -8,7 +8,8 @@ Insert a specified list of packages to look for or let the tool search for funct
 
 ##### Installation
 
-* `devtools::install_github("spencerseale/addPid")`
+* Clone this repo
+* `devtools::install("addPid")`
 * `library(addPid)`
 
 ##### Arguments
